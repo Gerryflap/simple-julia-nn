@@ -6,7 +6,7 @@ mutable struct DenseLayer
 end
 
 function initDense(input_size, output_size)
-    W = 2 .* rand(input_size, output_size) .- 1
+    W = (2 .* rand(input_size, output_size) .- 1)./((output_size)^0.5)
     b = 2 .* rand(output_size) .- 1
     layer = DenseLayer(W, b)
     return layer
@@ -23,8 +23,8 @@ function backpropDense(x, layer, grads)
     new_grads = layer.W * grads
     weight_updates = x * reshape(grads, 1, :)
     bias_updates = grads
-    layer.W += 0.0001 .* weight_updates
-    layer.b += 0.0001 .* bias_updates
+    layer.W += 0.001 .* weight_updates
+    layer.b += 0.001 .* bias_updates
     return new_grads
 end
    
@@ -50,8 +50,8 @@ end
 # Tests
 
 d1 = initDense(2, 50)
-d2 = initDense(50, 150)
-d3 = initDense(150, 1)
+d2 = initDense(50, 1500)
+d3 = initDense(1500, 1)
 
 X = [[0 0]; [0 1]; [1 0]; [1 1];]
 Y = [[0]; [1]; [1]; [0];]
@@ -71,7 +71,9 @@ for i = 1:10000
         delta = backpropDense(z1r, d2, delta)
         delta = backpropReLU(z1, delta)
         delta = backpropDense(x, d1, delta)
-        println(cost)
+        if i%100 == 0
+            println(cost)
+        end
     end
 end
 

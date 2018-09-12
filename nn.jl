@@ -50,19 +50,24 @@ end
 # Tests
 
 d1 = initDense(2, 50)
-d2 = initDense(50, 1)
+d2 = initDense(50, 150)
+d3 = initDense(150, 1)
 
 X = [[0 0]; [0 1]; [1 0]; [1 1];]
 Y = [[0]; [1]; [1]; [0];]
 
-for i = 1:100000
+for i = 1:10000
     for j = 1:4
         x, y = X[j, :], Y[j, :]
         z1 = forwardDense(x, d1)
         z1r = ReLU(z1)
         z2 = forwardDense(z1r, d2)
-        cost = sse(z2, y)
-        delta = backpropSSE(z2, y)
+        z2r = ReLU(z2)
+        z3 = forwardDense(z2r, d3)
+        cost = sse(z3, y)
+        delta = backpropSSE(z3, y)
+        delta = backpropDense(z2r, d3, delta)
+        delta = backpropReLU(z2, delta)
         delta = backpropDense(z1r, d2, delta)
         delta = backpropReLU(z1, delta)
         delta = backpropDense(x, d1, delta)
@@ -77,6 +82,8 @@ for j = 1:4
     z1 = forwardDense(x, d1)
     z1r = ReLU(z1)
     z2 = forwardDense(z1r, d2)
-    println("Prediction: ", z2, ", actual: ", y)
+    z2r = ReLU(z2)
+    z3 = forwardDense(z2r, d3)
+    println("Prediction: ", z3, ", actual: ", y)
     println("")
 end

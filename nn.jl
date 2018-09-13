@@ -1,10 +1,12 @@
 # Neural nets in Julia
 
+# The data container for a dense layer
 mutable struct DenseLayer
     W::Array{Float32}
     b::Array{Float32}
 end
 
+# Initializes a dense layer with random weights
 function initDense(input_size, output_size)
     W = (2 .* rand(input_size, output_size) .- 1)./((output_size)^0.5)
     b = 2 .* rand(output_size) .- 1
@@ -12,6 +14,7 @@ function initDense(input_size, output_size)
     return layer
 end
 
+# Performs a dense (fully connected) layer forward pass
 function forwardDense(x, layer)
     x = x' * layer.W
     x = reshape(x, :)
@@ -19,6 +22,7 @@ function forwardDense(x, layer)
     return x
 end
 
+# Backpropagates the gradients through the dense layer. Updates the weights and biases and returns the new grads.
 function backpropDense(x, layer, grads)
     new_grads = layer.W * grads
     weight_updates = x * reshape(grads, 1, :)
@@ -28,27 +32,29 @@ function backpropDense(x, layer, grads)
     return new_grads
 end
    
+# Forwardpass of the ReLU activation function
 function ReLU(x)
     return clamp!(x, 0, Inf)
 end
 
-
+# Backpropagates gradients through the ReLU activation function
 function backpropReLU(x, grads)
        grads = copy(grads)
        grads[x .< 0] .= 0
     return grads
 end
 
+# Computes the sum squared error between x (prediction) and y (target)
 function sse(x, y)
     return sum((x-y).^2)
 end
 
+# Computes the gradients for gradient decend on the SSE cost function
 function backpropSSE(x, y)
     return y - x
 end
 
-# Tests
-
+# ______________________________Tests____________________________________
 d1 = initDense(2, 50)
 d2 = initDense(50, 1500)
 d3 = initDense(1500, 1)
